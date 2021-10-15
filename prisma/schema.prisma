@@ -1,0 +1,59 @@
+generator db {
+  provider = "prisma-client-js"
+}
+
+generator typegraphql {
+  provider           = "typegraphql-prisma"
+  output             = "../prisma/generated/type-graphql"
+  emitTranspiledCode = true
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../prisma/data.sqlite"
+}
+
+model Admin {
+  id       String  @id @default(uuid())
+  name     String
+  email    String
+  password String
+  Reply    Reply[]
+}
+
+model Visitor {
+  id    String @id @default(uuid())
+  name  String
+  email String
+  Chat  Chat[]
+}
+
+model Chat {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime
+  text       String?
+  media      String?
+  Room       Room?    @relation(fields: [roomId], references: [id])
+  roomId     Int?
+  sender     Visitor  @relation(fields: [visitorId], references: [id])
+  visitorId  String
+}
+
+model Reply {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime
+  text       String?
+  media      String?
+  sender     Admin    @relation(fields: [adminId], references: [id])
+  Room       Room?    @relation(fields: [roomId], references: [id])
+  roomId     Int?
+  adminId    String
+}
+
+model Room {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime
+  topic      String
+  chat       Chat[]
+  reply      Reply[]
+}
